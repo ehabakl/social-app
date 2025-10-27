@@ -5,63 +5,45 @@ import toast from "react-hot-toast";
 export const PostContext = createContext();
 
 export default function PostContextProvider({ children }) {
-  let headers = {
+  
+  // Helper function to always get the latest headers
+  const getAuthHeaders = () => ({
     token: localStorage.getItem("userToken"),
-  };
-  // async function getAllPosts() {
-  //   console.log(headers);
-  //   try {
-  //     let { data } = await axios.get(
-  //       `https://linked-posts.routemisr.com/posts?limit=50&sort=-createdAt`,
-  //       {
-  //         headers,
-  //       }
-  //     );
-  //     console.log(data, "from context");
+  });
 
-  //     return data.posts;
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
   async function getSinglePost(id) {
     try {
-      let { data } = await axios.get(
+      const { data } = await axios.get(
         `https://linked-posts.routemisr.com/posts/${id}`,
-        {
-          headers,
-        }
+        { headers: getAuthHeaders() }
       );
-
       return data.post;
     } catch (error) {
       console.log(error);
     }
   }
+
   async function getUserData() {
     try {
-      let { data } = await axios.get(
+      const { data } = await axios.get(
         `https://linked-posts.routemisr.com/users/profile-data`,
-        {
-          headers,
-        }
+        { headers: getAuthHeaders() }
       );
-
       return data.user;
     } catch (error) {
       console.log(error);
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+      }
     }
   }
+
   async function getUserPosts(id) {
     try {
-      let { data } = await axios.get(
+      const { data } = await axios.get(
         `https://linked-posts.routemisr.com/users/${id}/posts?limit=10`,
-        {
-          headers,
-        }
+        { headers: getAuthHeaders() }
       );
-
-      console.log(data, "from getUserPosts");
       return data.posts;
     } catch (error) {
       console.log(error);
@@ -70,56 +52,43 @@ export default function PostContextProvider({ children }) {
 
   async function addComment(body) {
     try {
-      let { data } = await axios.post(
+      const { data } = await axios.post(
         `https://linked-posts.routemisr.com/comments`,
         body,
-        {
-          headers,
-        }
+        { headers: getAuthHeaders() }
       );
-      toast.success("comment added Successfully ");
-
-      console.log(data, "new comments");
+      toast.success("Comment added successfully");
       return data.comments;
     } catch (error) {
       console.log(error);
-      toast.error("failed to add comment");
+      toast.error("Failed to add comment");
     }
   }
 
   async function addPosts(formData) {
     try {
-      let { data } = await axios.post(
+      const { data } = await axios.post(
         `https://linked-posts.routemisr.com/posts`,
         formData,
-        {
-          headers,
-        }
+        { headers: getAuthHeaders() }
       );
-      toast.success("Post added Successfully ");
-
-      console.log(data, "adding Posts");
-      //  return data.comments;
+      toast.success("Post added successfully");
     } catch (error) {
       console.log(error);
-      toast.error("failed to add Post");
+      toast.error("Failed to add post");
     }
   }
+
   async function deletePosts(id) {
     try {
-      let { data } = await axios.delete(
+      const { data } = await axios.delete(
         `https://linked-posts.routemisr.com/posts/${id}`,
-        {
-          headers,
-        }
+        { headers: getAuthHeaders() }
       );
-      toast.success("Post deleted Successfully ");
-
-      console.log(data, "del Posts");
-      //  return data.comments;
+      toast.success("Post deleted successfully");
     } catch (error) {
       console.log(error);
-      toast.error("failed to delete Post");
+      toast.error("Failed to delete post");
     }
   }
 
