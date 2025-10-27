@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react'
 import { PostContext } from './../../Context/PostContext';
-import { is } from 'zod/v4/locales';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function AddPost({callback}) {
+    const queryClient = useQueryClient(); // ✅ get React Query client
  const {addPosts} = useContext(PostContext)
 
  const [isLoading, setIsLoading] = useState(false)
@@ -17,6 +18,8 @@ export default function AddPost({callback}) {
         let response = await addPosts(formData)
         console.log(response)
         callback?.()
+            queryClient.invalidateQueries({ queryKey: ['allPosts'] });
+
         setIsLoading(false)
 
     }
